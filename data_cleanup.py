@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3.4
 
 import sys
 import csv, re
@@ -25,6 +25,7 @@ def tokenize(text):
             |›
             |«
             |»
+            |،
             ''', re.UNICODE
         )
 
@@ -43,28 +44,8 @@ def count(tokenized_text):
 def remove_unwanted(wordcounts_dict):
     return
 
-# deprecated? leaving this in for the time being in case it becomes useful again.
-"""def normalize_alphabet(wordcounts_dict):
-    ng = re.compile(r'ng[bptjxdrzsfqkglmnhwvyc]', re.UNICODE) #ng followed by a consonant
-    gh = re.compile(r'gh', re.UNICODE)
-    ch = re.compile(r'ch', re.UNICODE)
-    zh = re.compile(r'zh', re.UNICODE)
-    eh = re.compile(r'[éë]', re.UNICODE)
-    gs = re.compile(r"'", re.UNICODE)
-    for key in wordcounts_dict:
-        new_key = key.lower()
-        new_key = ng.sub('N', new_key)
-        new_key = gh.sub('G', new_key)
-        new_key = ch.sub('C', new_key)
-        new_key = zh.sub('Z', new_key)
-        new_key = eh.sub('E', new_key)
-        new_key = gs.sub('P', new_key)
-        wordcounts_dict[new_key] = wordcounts_dict.pop(key)
-"""
-
-""" a bit space-inefficient -- involves making a full copy
-    of the dict.  
-"""
+# a bit space-inefficient -- involves making a full copy
+# of the dict.  
 def normalize_alphabet(wordcounts_dict):
     tmp = {}
     for key in wordcounts_dict:
@@ -72,19 +53,29 @@ def normalize_alphabet(wordcounts_dict):
     for old_key, new_key in tmp.items():
         wordcounts_dict[new_key] = wordcounts_dict.pop(old_key)
         
+
 # Several sounds are represented as digraphsnormalize_alphabet in the latin orthography
 # This causes some problems; some digraphs are indistinguishable from
 # consonant clusters.  The arabic script doesn't have this problem.
+def output_csv(wordcounts_dict, outfile):  
+    with open(outfile, 'w') as csvfile:
+        writer = csv.writer(csvfile) 
+        writer.writerow(['word', 'count', 'doc-count'])
+        for key in wordcounts_dict: # val is a list [wordcount, doc-count]
+            writer.writerow([key, wordcounts_dict[key][0], wordcounts_dict[key][1]])
+
 
 def main():
     tokenized = []
     wordcounts = []
     textwordcounts = {}
-    infilename = sys.argv[1]
-    with open(infilename) as csvfile:
+    infile = sys.argv[1]
+    outfile = sys.argv[2]
+
+    with open(infile) as csvfile:
         dr = csv.DictReader(csvfile)
         for row in dr:
-            tokenized.append(tokenize(row['title']))
+            tokenized.append(tokenize(row['text']))
     for text in tokenized:
         wordcounts.append(count(text))
     for count_dict in wordcounts:
@@ -97,15 +88,12 @@ def main():
 
     remove_unwanted(textwordcounts)
     normalize_alphabet(textwordcounts)
+    output_csv(textwordcounts, outfile)
 
-    for x in textwordcounts: 
-        print(x)
-        print(textwordcounts[x])
-#    for word in tokenized:
-#        print word
-#    for l in wordcounts:
-#        print l
 
+#    for x in textwordcounts: 
+#        print(x)
+#        print(textwordcounts[x])
 
 if __name__ == "__main__":
     main()
