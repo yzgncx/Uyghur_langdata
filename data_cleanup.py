@@ -90,10 +90,11 @@ def main():
     normalize_alphabet(textwordcounts)
     output_csv(textwordcounts, outfile)
 
-
 #    for x in textwordcounts: 
 #        print(x)
 #        print(textwordcounts[x])
+
+
 
 if __name__ == "__main__":
     main()
