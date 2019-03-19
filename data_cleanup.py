@@ -2,6 +2,7 @@
 
 import sys
 import csv, re
+from arabic_to_latin import arabic_to_ASCII 
 
 
 def tokenize(text):
@@ -18,6 +19,12 @@ def tokenize(text):
             |;+
             |\#
             |@
+            |\(
+            |\)
+            |‹
+            |›
+            |«
+            |»
             ''', re.UNICODE
         )
 
@@ -36,7 +43,8 @@ def count(tokenized_text):
 def remove_unwanted(wordcounts_dict):
     return
 
-def normalize_alphabet(wordcounts_dict):
+# deprecated? leaving this in for the time being in case it becomes useful again.
+"""def normalize_alphabet(wordcounts_dict):
     ng = re.compile(r'ng[bptjxdrzsfqkglmnhwvyc]', re.UNICODE) #ng followed by a consonant
     gh = re.compile(r'gh', re.UNICODE)
     ch = re.compile(r'ch', re.UNICODE)
@@ -52,12 +60,21 @@ def normalize_alphabet(wordcounts_dict):
         new_key = eh.sub('E', new_key)
         new_key = gs.sub('P', new_key)
         wordcounts_dict[new_key] = wordcounts_dict.pop(key)
+"""
 
-
-#def initial_consonant_clusters(wordcounts_dict):
-#    result = {}
-
-
+""" a bit space-inefficient -- involves making a full copy
+    of the dict.  
+"""
+def normalize_alphabet(wordcounts_dict):
+    tmp = {}
+    for key in wordcounts_dict:
+        tmp[key] = arabic_to_ASCII(key)
+    for old_key, new_key in tmp.items():
+        wordcounts_dict[new_key] = wordcounts_dict.pop(old_key)
+        
+# Several sounds are represented as digraphsnormalize_alphabet in the latin orthography
+# This causes some problems; some digraphs are indistinguishable from
+# consonant clusters.  The arabic script doesn't have this problem.
 
 def main():
     tokenized = []
@@ -67,7 +84,7 @@ def main():
     with open(infilename) as csvfile:
         dr = csv.DictReader(csvfile)
         for row in dr:
-            tokenized.append(tokenize(row['text_latin']))
+            tokenized.append(tokenize(row['title']))
     for text in tokenized:
         wordcounts.append(count(text))
     for count_dict in wordcounts:
@@ -81,7 +98,7 @@ def main():
     remove_unwanted(textwordcounts)
     normalize_alphabet(textwordcounts)
 
-    for x in textwordcounts:
+    for x in textwordcounts: 
         print(x)
         print(textwordcounts[x])
 #    for word in tokenized:
