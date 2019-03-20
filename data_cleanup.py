@@ -42,7 +42,16 @@ def count(tokenized_text):
             wordcount[token] = 1
     return wordcount
 
+
+# Currently removes all words that appear in only one document.
+# This is probably really heavy-handed, but it does seem to get rid
+# of some noise in the data.
+#
 def remove_unwanted(wordcounts_dict):
+    tmp_copy = dict(wordcounts_dict)
+    for key in tmp_copy:
+        if tmp_copy[key][1] <= 1:
+            del wordcounts_dict[key]
     return
 
 # a bit space-inefficient -- involves making a full copy
