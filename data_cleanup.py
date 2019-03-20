@@ -26,6 +26,7 @@ def tokenize(text):
             |«
             |»
             |،
+            |؟
             ''', re.UNICODE
         )
 
@@ -47,10 +48,10 @@ def remove_unwanted(wordcounts_dict):
 # a bit space-inefficient -- involves making a full copy
 # of the dict.  
 def normalize_alphabet(wordcounts_dict):
-    tmp = {}
+    translate = {}
     for key in wordcounts_dict:
-        tmp[key] = arabic_to_ASCII(key)
-    for old_key, new_key in tmp.items():
+        translate[key] = arabic_to_ASCII(key)
+    for old_key, new_key in translate.items():
         wordcounts_dict[new_key] = wordcounts_dict.pop(old_key)
         
 

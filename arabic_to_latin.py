@@ -1,4 +1,5 @@
 #!/usr/bin/python3.4
+import re
 
 # arabic digraphs
 MAP_1a = {
@@ -93,7 +94,7 @@ MAP_2b = {
     'ۆ' : 'O', # front mid round vowel
     'ا' : 'a',
     'ۇ' : 'u',
-    'ۈ' : 'U', # front high round vowel
+    'ۈ' : 'y', # front high round vowel
     'ې' : 'I', # bar-i? 
     'ى' : 'i',
     'ە' : 'e',
@@ -109,8 +110,8 @@ def arabic_to_ULY(s):
         output = output.replace(key, MAP_1a[key])
     for key in MAP_1b:
         output = output.replace(key, MAP_1b[key])
+    output = re.sub(r'([aeiIoOuU])([aeiIoOuU])', r"\1'\2", output)
     return output
-
 # works over strings for now.  might extend to files (TODO)
 def arabic_to_ASCII(s):
     output = s
@@ -118,5 +119,6 @@ def arabic_to_ASCII(s):
         output = output.replace(key, MAP_2a[key])
     for key in MAP_2b:
         output = output.replace(key, MAP_2b[key])
+    output = re.sub(r'([aeiIoOuU])([aeiIoOuU])', r"\1P\2", output)
     return output
 
