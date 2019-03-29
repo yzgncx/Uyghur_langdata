@@ -1,17 +1,22 @@
 #!/usr/bin/python3.4
-import sys, csv, re, itertools
+import sys, csv, re
+from itertools import product
 
 #===========================#
 # Consonant and Vowel lists #
 #===========================#
 CONSONANTS = ['p','b','t','d','C','J','k','g','q','G','P','m','n','N','f','s','z','S','Z','x','h','r','l','j','w']
-VOWELS = ['i','I','o','O','u','y','a','e']
+VOWELS = ['i','e','o','O','u','y','a','A']
+
+HARMONIZERS = ['o','O','u','y','a','A','G','g','q','k']
 
 
 CONS_REGEX = re.compile('['+''.join(CONSONANTS)+']')
 NONCONS_REGEX = re.compile('[^'+''.join(CONSONANTS)+']')
 VOWELS_REGEX = re.compile('['+''.join(VOWELS)+']')
 NONVOWELS_REGEX = re.compile('[^'+(''.join(VOWELS))+']')
+HARMONIZERS_REGEX = re.compile('['+(''.join(HARMONIZERS))+']')
+NONHARMONIZERS_REGEX = re.compile('[^'+(''.join(HARMONIZERS))+']')
 
 
 def bigrams(s):
@@ -22,7 +27,7 @@ def bigrams(s):
 # Hopefully written to be extensible to other sequence lengths if I find it compelling
 def vowel_bigrams(infile, outfile):
     vowel_seqs = []
-    bigram_counts = {key: 0 for key in list((itertools.product(VOWELS,VOWELS)))}
+    bigram_counts = {key: 0 for key in list((product(VOWELS,VOWELS)))}
     with open(infile) as csv_input:
         dr = csv.DictReader(csv_input)
         for key in dr:
@@ -37,6 +42,40 @@ def vowel_bigrams(infile, outfile):
         writer.writerow(['bigram', 'V1', 'V2', 'count'])
         for key in bigram_counts: # val is a list [wordcount, doc-count]
             writer.writerow([key[0]+key[1], key[0], key[1], bigram_counts[key]])  
+
+#
+# Harmonizers
+#
+def harmonizer_bigrams(infile,outfile):
+    harmonizer_seqs = []
+    bigram_counts = {key: 0 for key in list(product(product(HARMONIZERS,HARMONIZERS),list(range(8))))}
+    with open(infile) as csv_input:
+        dr = csv.DictReader(csv_input)
+        for key in dr:
+            harmonizer_seqs.append(NONHARMONIZERS_REGEX.sub(' ', key['word']))
+    for seq in harmonizer_seqs:
+        h_1 = ''
+        h_2 = ''
+        dist = 0
+        for i,c in enumerate(seq):
+            if c != ' ':
+                if not h_1:
+                    h_1 = c
+                else:
+                    h_2 = c
+                    bigram_counts[((h_1,h_2),dist)] += 1
+                    h_1 = h_2
+            elif h_1: 
+                dist += 1
+            if dist > 7:
+                dist = 0
+                h_1 = ''
+                
+    with open(outfile, 'w') as csv_output:
+        writer = csv.writer(csv_output)
+        writer.writerow(['bigram', 'H1', 'H2', 'dist', 'count'])
+        for key in bigram_counts: # val is a list [wordcount, doc-count]
+            writer.writerow([key[0][0]+key[0][1], key[0][0], key[0][1], key[1], bigram_counts[key]])  
 
 
 #==========================#
@@ -61,7 +100,7 @@ def remove_trailing(s):
 
 def medial_cons_bigrams(infile, outfile):
     clusters = []
-    bigram_counts = {key: 0 for key in list((itertools.product(CONSONANTS,CONSONANTS)))}
+    bigram_counts = {key: 0 for key in list((product(CONSONANTS,CONSONANTS)))}
     with open(infile) as csv_input:
         dr = csv.DictReader(csv_input)
         for row in dr:
@@ -83,7 +122,8 @@ def medial_cons_bigrams(infile, outfile):
 def main():
     infile = sys.argv[1]
     outfile = sys.argv[2]
-    medial_cons_bigrams(infile, outfile)
+    harmonizer_bigrams(infile, outfile)
+
 
 if __name__ == "__main__":
     main()

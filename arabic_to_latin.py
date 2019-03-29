@@ -59,13 +59,13 @@ MAP_1b = {
 # arabic digraphs
 MAP_2a = {
     'ئى' : 'i',
-    'ئې' : 'I',
+    'ئې' : 'e',
     'ئو' : 'o', 
     'ئۆ' : 'O', # vowel /ö/
     'ئۈ' : 'y', # vowel /y/
     'ئۇ' : 'u',
     'ئا' : 'a',
-    'ئە' : 'e'
+    'ئە' : 'A' # front low unround
 }
 
 MAP_2b = {
@@ -95,9 +95,9 @@ MAP_2b = {
     'ا' : 'a',
     'ۇ' : 'u',
     'ۈ' : 'y', # front high round vowel
-    'ې' : 'I', # bar-i? 
+    'ې' : 'e', # tense front? 
     'ى' : 'i',
-    'ە' : 'e',
+    'ە' : 'A', #front low unround
     'ۋ' : 'w',
     'ي' : 'j' # glide /j/
     }

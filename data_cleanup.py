@@ -83,9 +83,14 @@ def main():
     outfile = sys.argv[2]
 
     with open(infile) as csvfile:
+        n_texts = 0
         dr = csv.DictReader(csvfile)
         for row in dr:
             tokenized.append(tokenize(row['text']))
+            n_texts += 1
+
+        print("total texts:" + str(n_texts))
+
     for text in tokenized:
         wordcounts.append(count(text))
     for count_dict in wordcounts:
@@ -96,7 +101,25 @@ def main():
             else:
                 textwordcounts[key] = [1,1]                 # [wordcount=1, documentcount=1]    
 
+    total_tokens = 0
+    total_words = 0
+    for key in textwordcounts:
+        total_tokens += textwordcounts[key][0]
+        total_words += 1 #There's a better way to do this, but I don't remember the function.  Sorry future me.
+    print("total unfiltered tokens: " + str(total_tokens))
+    print("total unique unfiltered words: " + str(total_words))
+
     remove_unwanted(textwordcounts)
+    total_tokens = 0
+    total_words = 0
+    for key in textwordcounts:
+        total_tokens += textwordcounts[key][0]
+        total_words += 1 #There's a better way to do this, but I don't remember the function.  Sorry future me.
+
+    print("total tokens post-filter: " + str(total_tokens))
+    print("total unique words post-filter: " + str(total_words))
+
+
     normalize_alphabet(textwordcounts)
     output_csv(textwordcounts, outfile)
 
