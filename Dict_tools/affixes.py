@@ -1,3 +1,4 @@
+#!/usr/bin/python3.4
 import sys, csv, operator
 import arabic_to_latin
 
@@ -360,7 +361,10 @@ def main(argv):
 
             if i % 1000 == 0:
                 print("row " + str(i) + " completed.")
-            stripped_csv = stripped_csv + tmp
+
+            tmp.sort(key=len)
+            stripped_csv.append(tmp[0])
+
 
 
     with open(argv[2], 'w', newline="") as csvfile:
